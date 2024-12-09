@@ -1,5 +1,11 @@
 use std::io;
 
+//struct to store the breakdown insulin dose values
+struct DoseBreakdown {
+    total_dose: f64,
+    correction_dose: f64,
+    carb_dose: f64,
+}
 struct UserData {
     current_glucose: f64,      // Current blood glucose level (mg/dL)
     target_glucose: f64,       // Target blood glucose level (mg/dL)
@@ -42,14 +48,19 @@ impl UserData {
         self.carb_intake / self.carb_ratio
     }
 
-    fn calculate_total_dose(&mut self) -> f64 {
+    fn calculate_total_dose(&mut self) -> DoseBreakdown {
         let correction_dose = self.calculate_correction_dose();
         let carb_dose = self.calculate_carb_dose();
         let total_dose = correction_dose + carb_dose;
 
         // Store the calculated dose in the history
         self.dose_history.push(total_dose);
-        total_dose
+
+        DoseBreakdown {
+            total_dose,
+            correction_dose,
+            carb_dose,
+        }
     }
 
     fn display_dose_history(&self) {
@@ -69,15 +80,13 @@ fn main() {
         user_data.collect_data();
 
         // Calculate insulin dose
-        let correction_dose = user_data.calculate_correction_dose();
-        let carb_dose = user_data.calculate_carb_dose();
-        let total_dose = user_data.calculate_total_dose();
+       let dose_breakdown = user_data.calculate_total_dose();
 
         // Display results
         println!("\nInsulin Dose Calculation:");
-        println!("Correction dose: {:.2} units", correction_dose);
-        println!("Carb dose: {:.2} units", carb_dose);
-        println!("Total Insulin Dose: {:.2} units", total_dose);
+        println!("Correction dose: {:.2} units", dose_breakdown.correction_dose);
+        println!("Carb dose: {:.2} units", dose_breakdown.carb_dose);
+        println!("Total Insulin Dose: {:.2} units", dose_breakdown.total_dose);
 
         // Display dose history
         user_data.display_dose_history();
@@ -87,7 +96,9 @@ fn main() {
         io::stdin()
             .read_line(&mut input)
             .expect("Failed to read input");
-        if input.trim().eq_ignore_ascii_case("no") {
+        if input.trim().eq_ignore_ascii_case("yes") {
+            continue;
+        } else {
             break;
         }
     }
