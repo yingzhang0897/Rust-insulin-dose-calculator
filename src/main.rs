@@ -64,19 +64,35 @@ fn main() {
     println!("Welcome to the Insulin Dose Calculator!\n");
 
     let mut user_data = UserData::new();
-    user_data.collect_data();
 
-    // Calculate insulin dose
-    let total_dose = user_data.calculate_total_dose();
+    loop {
+        user_data.collect_data();
 
-    // Display results
-    println!("\nInsulin Dose Calculation:");
-    println!("Total Insulin Dose: {:.2} units", total_dose);
+        // Calculate insulin dose
+        let correction_dose = user_data.calculate_correction_dose();
+        let carb_dose = user_data.calculate_carb_dose();
+        let total_dose = user_data.calculate_total_dose();
 
+        // Display results
+        println!("\nInsulin Dose Calculation:");
+        println!("Correction dose: {:.2} units", correction_dose);
+        println!("Carb dose: {:.2} units", carb_dose);
+        println!("Total Insulin Dose: {:.2} units", total_dose);
+
+        // Display dose history
+        user_data.display_dose_history();
+
+        println!("\nWould you like to calculate another doese? (yes or no)");
+        let mut input = String::new();
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read input");
+        if input.trim().eq_ignore_ascii_case("no") {
+            break;
+        }
+    }
     println!("\nConsult your doctor before using this program for medical decisions.");
 
-    // Display dose history
-    user_data.display_dose_history();
 }
 
 fn read_input(prompt: &str) -> f64 {
@@ -86,7 +102,7 @@ fn read_input(prompt: &str) -> f64 {
         io::stdin()
             .read_line(&mut input)
             .expect("Failed to read input");
-        let input: f64 = match input.trim().parse() {
+        let _input: f64 = match input.trim().parse() {
             Ok(num) => return num,
             Err(_) => {
                 println!("Invalid input, please enter a valid number.");
